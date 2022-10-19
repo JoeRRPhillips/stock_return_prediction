@@ -1,0 +1,88 @@
+defaults:
+  - _self_
+
+# Training parameters
+train:
+  validation_ratio: 0.2
+  max_iter: 1000
+
+# Data parameters
+data:
+  ticker: "UBS"
+  labels_colname: "direction_tp1"
+  start_date: "2012-01-01"
+  end_date: "2019-06-01"
+
+# Model parameters
+logistic_regression:
+  penalty: "none"
+  solver: "newton-cg"
+  regularisation: 1.0  # Unused but needed to avoid sklearn error.
+  l1_ratio: None
+lasso:
+  penalty: "l1"
+  solver: "liblinear"
+  regularisation: 0.5  # Inverse strength: smaller is stronger.
+  l1_ratio: None
+ridge:
+  penalty: "l2"
+  solver: "newton-cg"
+  regularisation: 0.25  # Inverse strength: smaller is stronger.
+  l1_ratio: None
+elasticnet:
+  penalty: "elasticnet"
+  solver: "saga"
+  regularisation: 0.5  # Inverse strength: smaller is stronger.
+  l1_ratio: 0.5  # Ratio of L1 reg to L2 reg.
+
+# Scaling regime parameters
+scaling:
+  # Names of columns to undergo min-max scaling
+  normalise_min_max: ["price_t", "Volume", "Open", "High", "Low", "Close"]
+  # Names of columns to be standardised to (mean,std)=(0,1)
+  standardise: ["log_returns_t", "sharpe_ratio_t", "sortino_ratio_t"]
+
+# Independent variable parameters
+features:
+  # Features to add to data if True
+  past_returns: True
+  sharpe_ratio: True
+  sortino_ratio: True
+  sma: True
+  ema: True
+  momentum: True
+  price_spread_open_close: False
+  price_spread_high_low: False
+  # Raw features to drop from data.
+  drop_columns: ["Open", "High", "Low", "Close", "price_t", "returns_t", "risk_free_rate_t"]
+
+# Sub-configs parameters specific to given indicators
+returns:
+  # Returns standardised
+  price_colname: "price_t"
+past_returns:
+  colname: "log_returns_t_standardised"
+  time_periods: [1, 2, 3, 4, 7, 12, 26, 52]
+ema:
+  colname: "price_t_normalised"
+  spans: [5, 20]
+sma:
+  colname: "price_t_normalised"
+  spans: [5, 20]
+momentum:
+  colname: "price_t_normalised"
+  spans: [4, 12, 26, 52, 155]
+
+# Csv file paths
+storage:
+  raw_data_fp: "data/raw_data.csv"
+  processed_data_fp: "data/processed_data.csv"
+  train_data_fp: "data/train_data.csv"
+  validation_data_fp: "data/validation_data.csv"
+  save_model_dir: "saved_models"
+
+# Stop hydra from redirecting outputs to `outputs` folder
+hydra:
+  output_subdir: null
+  run:
+    dir: .
